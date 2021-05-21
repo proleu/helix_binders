@@ -1,7 +1,3 @@
-/home/flop/switch/5thround/DHRs/allo3/make_DHR_states_4.ipynb
-
-is how I generated states
-
 design of states was done in /home/flop/switch/5thround/DHRs/allo3/des1/ and des2
 
 the folders should have xmls
