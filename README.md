@@ -1,5 +1,3 @@
-loops as before, just make sure to connect the right termini, and always carry the helix along
-
 for state X, need to paste helix in there and yeet
 
 /home/flop/switch/5thround/DHRs/allo3/msd1/msd_scripts/msd_fnr.py
