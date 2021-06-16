@@ -12,5 +12,5 @@ uses constraints to force in polars
 
 forced polars did not look great though
 
-I think in des1 or des2 I allowed polars in the hing-helix interface, but not the hinge-hiknge interface
+I think in des1 or des2 I allowed polars in the hing-helix interface, but not the hinge-hinge interface
 
