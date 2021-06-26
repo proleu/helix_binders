@@ -7,7 +7,12 @@ __version__ = "0.9.0"
 __maintainer__ = "Philip Leung"
 __email__ = "pleung@cs.washington.edu"
 __status__ = "Prototype"
-import argparse, binascii, json, os, pyrosetta, sys
+import argparse, binascii, bz2, collections, json, os, pyrosetta, sys
+from pyrosetta.distributed import cluster
+import pyrosetta.distributed.io as io
+from pyrosetta.distributed.packed_pose.core import PackedPose
+from typing import *
+
 
 parser = argparse.ArgumentParser(description="Use to do fnr msd.")
 # required arguments
@@ -20,9 +25,6 @@ parser.add_argument("-np_pen", type=int, default=1, required=False)
 flags = "-out:level 300 -corrections::beta_nov16 true -holes:dalphaball /home/bcov/ppi/tutorial_build/main/source/external/DAlpahBall/DAlphaBall.gcc -indexed_structure_store:fragment_store /net/databases/VALL_clustered/connect_chains/ss_grouped_vall_helix_shortLoop.h5"
 
 pyrosetta.distributed.init(flags)
-from pyrosetta.distributed import cluster
-from pyrosetta.distributed.packed_pose.core import PackedPose
-from typing import *
 
 
 def msd(packed_pose_in: PackedPose, **kwargs) -> PackedPose:
@@ -856,11 +858,24 @@ def main():
     }
     
     handle = str(binascii.b2a_hex(os.urandom(24)).decode("utf-8"))
-    ppose = msd(None, **msd_kwargs)
-    if ppose is not None:
-        ppose.pose.dump_pdb(f"{handle}.pdb")
+    pose = msd(None, **msd_kwargs)
+    if pose is not None:
+        pdbstring = io.to_pdbstring(pose)
+        remark = "REMARK PyRosettaCluster: "
+        scores_dict = collections.OrderedDict(sorted(pose.scores.items()))
+        pdbfile_data = json.dumps(
+            {
+                "instance": {},
+                "metadata": {},
+                "scores": scores_dict,
+            }
+        )
+        pdbstring_data = pdbstring + os.linesep + remark + pdbfile_data
+        output_file = f"{handle}.pdb.bz2"
+        with open(output_file, "wb") as f:
+            f.write(bz2.compress(str.encode(pdbstring_data)))
         with open(f"{handle}.json", "w+") as f:
-            print(json.dumps(dict(ppose.pose.scores)), file=f)
+            print(json.dumps(dict(pose.scores)), file=f)
 
 
 if __name__ == "__main__":
